@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATLAS · FINANCIAL DASHBOARD</title>
+    <!-- senior financial UI · institutional grade · single file -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0b0f16;
+            background: radial-gradient(circle at 50% 0%, #1e2a3a, #0b0f16 80%);
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            color: #e6edf5;
+        }
+
+        /* main dashboard card — deep, glossy, enormous depth */
+        .dashboard {
+            max-width: 1600px;
+            width: 100%;
+            background: rgba(18, 26, 36, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(74, 128, 184, 0.25);
+            border-radius: 48px;
+            box-shadow: 0 60px 80px -30px #000000cc, 0 0 0 1px rgba(138, 184, 235, 0.15) inset, 0 0 40px rgba(0, 120, 255, 0.1);
+            padding: 2.8rem;
+            transition: all 0.3s;
+        }
+
+        /* header area — refined, data-dense */
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+
+        .entity-badge {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 600;
+            background: linear-gradient(145deg, #b8d6ff, #ffffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .badge {
+            background: #1e3349;
+            border-radius: 60px;
+            padding: 0.4rem 1.4rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border: 1px solid #3471a1;
+            color: #b8d6fc;
+            letter-spacing: 0.3px;
+        }
+
+        .market-date {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            background: rgba(0, 20, 40, 0.6);
+            padding: 0.6rem 1.8rem;
+            border-radius: 60px;
+            border: 1px solid #315d84;
+            backdrop-filter: blur(10px);
+        }
+
+        .market-price {
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .date {
+            color: #9bb9db;
+            font-size: 0.9rem;
+        }
+
+        /* KPI cards — clean, 3D depth, micro interactions */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            margin-bottom: 3.5rem;
+        }
+
+        .kpi-tile {
+            background: rgba(12, 22, 33, 0.7);
+            backdrop-filter: blur(4px);
+            border-radius: 32px;
+            padding: 2rem 1.8rem;
+            border: 1px solid rgba(82, 141, 201, 0.25);
+            border-bottom: 4px solid #2d567b;
+            box-shadow: 0 20px 30px -15px #00000080, 0 0 0 1px rgba(200, 230, 255, 0.1) inset;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .kpi-tile:hover {
+            border-color: #4794dc;
+            transform: translateY(-4px);
+            box-shadow: 0 28px 35px -18px #000000, 0 0 0 1px #4794dc inset;
+        }
+
+        .kpi-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #8eb5db;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .kpi-value {
+            font-size: 3rem;
+            font-weight: 500;
+            line-height: 1;
+            color: white;
+            margin-bottom: 0.4rem;
+        }
+
+        .kpi-trend {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-size: 0.9rem;
+        }
+
+        .trend-up { color: #6fcf97; background: #1b3b2a; padding: 0.2rem 0.8rem; border-radius: 40px; }
+        .trend-down { color: #f28b82; background: #442a2a; padding: 0.2rem 0.8rem; border-radius: 40px; }
+
+        /* chart + heatmap area — complex, dense professional */
+        .chart-panel {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 3.5rem;
+        }
+
+        .candlestick-area {
+            background: rgba(8, 18, 28, 0.7);
+            backdrop-filter: blur(4px);
+            border-radius: 36px;
+            padding: 2rem;
+            border: 1px solid #2d4a6b;
+            box-shadow: 0 20px 25px -15px black;
+        }
+
+        .area-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            color: #b6d3f0;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .candle-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 0.6rem;
+            height: 200px;
+            margin: 1.5rem 0 1rem;
+        }
+
+        .candle-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .candle-body {
+            width: 80%;
+            background: #4794dc;
+            height: calc(100% * var(--close, 0.6));
+            min-height: 6px;
+            border-radius: 4px 4px 0 0;
+            background: linear-gradient(to top, #3a7bb5, #67a9ec);
+            border: 1px solid #7cb8ff;
+        }
+
+        .candle-wick {
+            width: 2px;
+            background: #a0c4e8;
+            height: calc(100% * var(--high, 0.9));
+        }
+
+        .candle-group.down .candle-body {
+            background: #dc5f5f;
+            background: linear-gradient(to top, #b43f3f, #e47171);
+            border-color: #ffa5a5;
+        }
+
+        .candle-group:nth-child(1) { --high: 0.95; --close: 0.7; }
+        .candle-group:nth-child(2) { --high: 0.85; --close: 0.6; }
+        .candle-group:nth-child(3) { --high: 0.75; --close: 0.65; }
+        .candle-group:nth-child(4) { --high: 0.98; --close: 0.9; }
+        .candle-group:nth-child(5) { --high: 0.9; --close: 0.55; }
+        .candle-group:nth-child(6) { --high: 0.8; --close: 0.7; }
+        .candle-group:nth-child(7) { --high: 0.93; --close: 0.85; }
+        .candle-group:nth-child(8) { --high: 0.7; --close: 0.5; }
+        .candle-group:nth-child(9) { --high: 0.88; --close: 0.8; }
+
+        .candle-group:nth-child(3),
+        .candle-group:nth-child(6),
+        .candle-group:nth-child(8) { class: down; }
+        .candle-group:nth-child(3) .candle-body,
+        .candle-group:nth-child(6) .candle-body,
+        .candle-group:nth-child(8) .candle-body { background: #dc5f5f; background: linear-gradient(to top, #b43f3f, #e47171); }
+
+        .heatmap-grid {
+            background: rgba(8, 18, 28, 0.7);
+            backdrop-filter: blur(4px);
+            border-radius: 36px;
+            padding: 2rem;
+            border: 1px solid #2d4a6b;
+        }
+
+        .sector-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.8rem;
+            margin-top: 1.5rem;
+        }
+
+        .sector-cell {
+            background: #1a334b;
+            border-radius: 20px;
+            padding: 1rem 0.8rem;
+            text-align: center;
+            font-size: 0.8rem;
+            border: 1px solid #315a80;
+            box-shadow: inset 0 -2px 0 #0d2133;
+        }
+        .sector-cell.tech { background: #1e4c6b; } 
+        .sector-cell.fin { background: #2f4b39; } 
+        .sector-cell.energy { background: #7a5f2b; } 
+        .sector-change { font-weight: 700; font-size: 1rem; }
+
+        /* order book / depth */
+        .depth-panel {
+            background: rgba(6, 16, 24, 0.8);
+            backdrop-filter: blur(8px);
+            border-radius: 32px;
+            padding: 2rem;
+            border: 1px solid #2b4d70;
+            margin-bottom: 2rem;
+        }
+
+        .depth-header {
+            display: flex;
+            gap: 3rem;
+            margin-bottom: 1.2rem;
+            border-bottom: 1px solid #33587a;
+            padding-bottom: 0.8rem;
+        }
+
+        .depth-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.8rem 0;
+            border-bottom: 1px dashed #203e58;
+            font-size: 1rem;
+        }
+
+        .price-bid { color: #7ad0a0; font-weight: 600; }
+        .price-ask { color: #f28b82; font-weight: 600; }
+
+        /* recent activity with live style */
+        .activity-feed {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .trade-item {
+            background: #102433;
+            border-radius: 24px;
+            padding: 1.2rem;
+            border-left: 6px solid;
+        }
+
+        .trade-item.buy { border-left-color: #58b983; }
+        .trade-item.sell { border-left-color: #e46f6f; }
+
+        /* micro interactions and sparkline */
+        .spark {
+            display: flex;
+            gap: 2px;
+            align-items: center;
+            height: 24px;
+        }
+        .spark span {
+            width: 4px;
+            background: #5d9bd5;
+            border-radius: 2px;
+            height: calc(100% * var(--h));
+        }
+        .spark span:nth-child(1) { --h:0.5; }
+        .spark span:nth-child(2) { --h:0.9; }
+        .spark span:nth-child(3) { --h:0.4; }
+        .spark span:nth-child(4) { --h:0.7; }
+
+        .footer-note {
+            margin-top: 3rem;
+            display: flex;
+            justify-content: space-between;
+            color: #6b93b9;
+            font-size: 0.85rem;
+            border-top: 1px solid #1c3d5b;
+            padding-top: 1.8rem;
+        }
+
+        /* responsive adjustments */
+        @media (max-width: 1200px) {
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+            .chart-panel { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 800px) {
+            .dashboard { padding: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- HEADER -->
+        <div class="header-row">
+            <div class="entity-badge">
+                <span class="logo">ATLAS◈CAPITAL</span>
+                <span class="badge">INSTITUTIONAL GRADE</span>
+            </div>
+            <div class="market-date">
+                <span class="market-price">SPX · 5,832.44 ▲ 0.36%</span>
+                <span class="date">13 MAR 2026 · 15:22 NY</span>
+            </div>
+        </div>
+
+        <!-- KPI TILES -->
+        <div class="kpi-grid">
+            <div class="kpi-tile">
+                <div class="kpi-label">AUM <span style="color:#6d99c0;">(USD)</span></div>
+                <div class="kpi-value">$142.8B</div>
+                <div class="kpi-trend"><span class="trend-up">▲ +2.4%</span> <span class="spark"><span></span><span></span><span></span><span></span></span></div>
+            </div>
+            <div class="kpi-tile">
+                <div class="kpi-label">DAILY P&L</div>
+                <div class="kpi-value">+$214M</div>
+                <div class="kpi-trend"><span class="trend-up">▲ +0.15%</span></div>
+            </div>
+            <div class="kpi-tile">
+                <div class="kpi-label">VAR (95%)</div>
+                <div class="kpi-value">$87.3M</div>
+                <div class="kpi-trend"><span class="trend-down">▼ 2bps</span></div>
+            </div>
+            <div class="kpi-tile">
+                <div class="kpi-label">SHARPE (1Y)</div>
+                <div class="kpi-value">2.14</div>
+                <div class="kpi-trend"><span class="trend-up">▲ 0.08</span></div>
+            </div>
+        </div>
+
+        <!-- CHART + HEATMAP -->
+        <div class="chart-panel">
+            <div class="candlestick-area">
+                <div class="area-header">
+                    <span>◈ EQUITIES · US LARGE CAP</span>
+                    <span>1D · 5D · 1M  ▶</span>
+                </div>
+                <div class="candle-chart">
+                    <div class="candle-group"><div class="candle-wick"></div><div class="candle-body"></div></div>
+                    <div class="candle-group"><div class="candle-wick"></div><div class="candle-body"></div></div>
+                    <div class="candle-group down"><div class="candle-wick"></div><div class="candle-body"></div></div>
+                    <div class="candle-group"><div class="candle-wick"></div><div class="candle-body"></div></div>
+                    <div class="candle-group"><div class="candle-wick"></div><div class="candle-body"></div></div>
+                    <div class="candle-group down"><div class="candle-wick"></div><div class="candle-body"></div></div>
+                    <div class="candle-group"><div class="candle-wick"></div><div class="candle-body"></div></div>
+                    <div class="candle-group down"><div class="candle-wick"></div><div class="candle-body"></div></div>
+                    <div class="candle-group"><div class="candle-wick"></div><div class="candle-body"></div></div>
+                </div>
+                <div style="display:flex; justify-content:space-between; color:#4b7aa6; font-size:0.7rem;">
+                    <span>09:30</span><span>11:00</span><span>12:30</span><span>14:00</span><span>15:30</span>
+                </div>
+            </div>
+            <div class="heatmap-grid">
+                <div class="area-header">SECTOR EXPOSURE</div>
+                <div class="sector-grid">
+                    <div class="sector-cell tech">TECH <div class="sector-change">+1.8%</div></div>
+                    <div class="sector-cell fin">FIN <div class="sector-change">+0.3%</div></div>
+                    <div class="sector-cell">HC <div class="sector-change">-0.2%</div></div>
+                    <div class="sector-cell energy">ENERGY <div class="sector-change">+0.9%</div></div>
+                    <div class="sector-cell">IND <div class="sector-change">+0.1%</div></div>
+                    <div class="sector-cell">UTIL <div class="sector-change">-0.7%</div></div>
+                    <div class="sector-cell">COMM <div class="sector-change">+1.2%</div></div>
+                    <div class="sector-cell">RE <div class="sector-change">+0.4%</div></div>
+                    <div class="sector-cell">MAT <div class="sector-change">-1.1%</div></div>
+                </div>
+                <div style="margin-top:1.2rem; font-size:0.75rem; color:#6e99c4;">▲ overweights / ▼ underweights</div>
+            </div>
+        </div>
+
+        <!-- ORDER BOOK DEPTH -->
+        <div class="depth-panel">
+            <div class="depth-header">
+                <span>ORDER BOOK · AAPL</span>
+                <span>BID  ⬆  ASK</span>
+            </div>
+            <div class="depth-row"><span class="price-bid">189.34</span> <span>12.4k</span> <span>8.2k</span> <span class="price-ask">189.41</span></div>
+            <div class="depth-row"><span class="price-bid">189.32</span> <span>9.7k</span> <span>6.1k</span> <span class="price-ask">189.43</span></div>
+            <div class="depth-row"><span class="price-bid">189.30</span> <span>21.3k</span> <span>3.9k</span> <span class="price-ask">189.45</span></div>
+            <div class="depth-row"><span class="price-bid">189.28</span> <span>6.5k</span> <span>5.2k</span> <span class="price-ask">189.47</span></div>
+            <div class="depth-row"><span class="price-bid">189.25</span> <span>15.0k</span> <span>7.4k</span> <span class="price-ask">189.48</span></div>
+        </div>
+
+        <!-- ACTIVITY FEED (LIVE TRADES) -->
+        <div class="activity-feed">
+            <div class="trade-item buy">
+                <div style="display:flex; justify-content:space-between;"><span>▲ BUY</span><span>09:47</span></div>
+                <div style="font-size:1.5rem; font-weight:400;">MSFT <span style="font-size:0.9rem;">412.80</span></div>
+                <div style="color:#7fc29b;">+4.2k shares</div>
+            </div>
+            <div class="trade-item sell">
+                <div style="display:flex; justify-content:space-between;"><span>▼ SELL</span><span>10:22</span></div>
+                <div style="font-size:1.5rem;">TSLA <span style="font-size:0.9rem;">201.64</span></div>
+                <div style="color:#f09b9b;">-1.8k shares</div>
+            </div>
+            <div class="trade-item buy">
+                <div style="display:flex; justify-content:space-between;"><span>▲ BUY</span><span>11:05</span></div>
+                <div style="font-size:1.5rem;">NVDA <span style="font-size:0.9rem;">978.24</span></div>
+                <div style="color:#7fc29b;">+900 shares</div>
+            </div>
+        </div>
+
+        <!-- FOOTER (risk metrics) -->
+        <div class="footer-note">
+            <span>PORTFOLIO BETA: 1.14 · CONCENTRATION: 18.2%</span>
+            <span>VOL (30D): 11.4%</span>
+            <span>UPDATED: 15:48:22 GMT-4</span>
+        </div>
+    </div>
+</body>
+</html>

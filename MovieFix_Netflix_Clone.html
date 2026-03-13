@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MovieFix · Complete Netflix Clone</title>
+    <!-- professional · latest movies · genre dropdown · posters -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f0f0f;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .app {
+            min-height: 100vh;
+            background: linear-gradient(180deg, #141414 0%, #0a0a0a 100%);
+        }
+
+        /* navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.8rem 4%;
+            background: linear-gradient(180deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.5) 100%);
+            backdrop-filter: blur(12px);
+            z-index: 1000;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 2.5rem;
+        }
+
+        .logo-container {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+            cursor: pointer;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #e50914;
+            text-transform: uppercase;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-small {
+            font-size: 0.7rem;
+            color: #b3b3b3;
+            letter-spacing: 0.5px;
+            font-weight: 400;
+            margin-top: -4px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: #e5e5e5;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: white;
+        }
+
+        /* genre dropdown */
+        .genre-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .genre-btn {
+            background: rgba(40,40,40,0.8);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border: 1px solid #5a5a5a;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .genre-content {
+            display: none;
+            position: absolute;
+            background: #2d2d2d;
+            min-width: 200px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+            z-index: 1001;
+            border-radius: 4px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .genre-content a {
+            color: white;
+            padding: 0.8rem 1.2rem;
+            text-decoration: none;
+            display: block;
+            font-size: 0.9rem;
+            border-bottom: 1px solid #404040;
+        }
+
+        .genre-content a:hover {
+            background: #404040;
+        }
+
+        .genre-dropdown:hover .genre-content {
+            display: block;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .search-container {
+            position: relative;
+        }
+
+        .search-icon {
+            color: white;
+            font-size: 1.3rem;
+            cursor: pointer;
+        }
+
+        .search-input {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background: #000000;
+            border: 1px solid #5a5a5a;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            width: 0;
+            opacity: 0;
+            transition: width 0.3s, opacity 0.3s;
+        }
+
+        .search-input.active {
+            width: 250px;
+            opacity: 1;
+            margin-top: 0.5rem;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            background: #a03d3d;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* main content */
+        .pages {
+            margin-top: 70px;
+            padding-bottom: 2rem;
+        }
+
+        .page {
+            display: none;
+            animation: fade 0.3s;
+        }
+
+        .page.active-page {
+            display: block;
+        }
+
+        @keyframes fade {
+            from { opacity: 0.4; }
+            to { opacity: 1; }
+        }
+
+        /* hero section */
+        .hero {
+            position: relative;
+            height: 75vh;
+            min-height: 500px;
+            margin-bottom: 2rem;
+            background: linear-gradient(90deg, #141414 0%, transparent 50%),
+                        url('https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?w=1200&auto=format') center/cover;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #141414 20%, transparent 80%);
+        }
+
+        .hero-content {
+            position: absolute;
+            bottom: 20%;
+            left: 4%;
+            max-width: 600px;
+            z-index: 10;
+        }
+
+        .hero-title {
+            font-size: 4rem;
+            font-weight: 800;
+            text-shadow: 3px 3px 8px #000;
+        }
+
+        .hero-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .match {
+            color: #46d369;
+            font-weight: 700;
+        }
+
+        .hero-desc {
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 6px;
+            padding: 0.8rem 2.2rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-play {
+            background: white;
+            color: black;
+        }
+
+        .btn-info {
+            background: rgba(80,80,80,0.7);
+            color: white;
+        }
+
+        /* movie grid */
+        .category-section {
+            padding: 1rem 4%;
+        }
+
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .category-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .movie-card {
+            background: #1e1e1e;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+
+        .movie-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 25px black;
+        }
+
+        .movie-poster {
+            width: 100%;
+            aspect-ratio: 2/3;
+            object-fit: cover;
+            background: #2d2d2d;
+        }
+
+        .movie-info {
+            padding: 1rem;
+        }
+
+        .movie-info h4 {
+            font-size: 1rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .movie-meta {
+            display: flex;
+            gap: 0.8rem;
+            font-size: 0.8rem;
+            color: #aaa;
+        }
+
+        .genre-tag {
+            background: #333;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+        }
+
+        /* footer */
+        .footer {
+            padding: 3rem 4% 2rem;
+            color: #7e7e7e;
+            background: #0a0a0a;
+            margin-top: 2rem;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-col p {
+            margin-bottom: 0.8rem;
+            cursor: pointer;
+        }
+
+        .copyright {
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- navigation -->
+        <div class="navbar">
+            <div class="nav-left">
+                <div class="logo-container" onclick="navigateTo('home')">
+                    <span class="logo">MOVIEFIX</span>
+                    <span class="logo-small">netflix clone</span>
+                </div>
+                <div class="nav-links">
+                    <span class="nav-link active" onclick="navigateTo('home')">Home</span>
+                    <span class="nav-link" onclick="navigateTo('tvshows')">TV Shows</span>
+                    <span class="nav-link" onclick="navigateTo('movies')">Movies</span>
+                    
+                    <!-- genre dropdown -->
+                    <div class="genre-dropdown">
+                        <span class="genre-btn">Browse Genres ▼</span>
+                        <div class="genre-content">
+                            <a href="#" onclick="filterByGenre('all'); return false;">All</a>
+                            <a href="#" onclick="filterByGenre('action'); return false;">Action</a>
+                            <a href="#" onclick="filterByGenre('comedy'); return false;">Comedy</a>
+                            <a href="#" onclick="filterByGenre('drama'); return false;">Drama</a>
+                            <a href="#" onclick="filterByGenre('sci-fi'); return false;">Sci-Fi</a>
+                            <a href="#" onclick="filterByGenre('horror'); return false;">Horror</a>
+                            <a href="#" onclick="filterByGenre('thriller'); return false;">Thriller</a>
+                            <a href="#" onclick="filterByGenre('romance'); return false;">Romance</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="nav-right">
+                <div class="search-container">
+                    <span class="search-icon" onclick="toggleSearch()">🔍</span>
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search movies..." onkeyup="searchMovies(event)">
+                </div>
+                <div class="avatar" onclick="navigateTo('account')">M</div>
+            </div>
+        </div>
+
+        <!-- pages container -->
+        <div class="pages">
+            <!-- home page -->
+            <div id="home-page" class="page active-page">
+                <div class="hero">
+                    <div class="hero-overlay"></div>
+                    <div class="hero-content">
+                        <div class="hero-title">DUNE: PART TWO</div>
+                        <div class="hero-meta">
+                            <span class="match">97% Match</span>
+                            <span>2024</span>
+                            <span>2h 46m</span>
+                        </div>
+                        <div class="hero-desc">
+                            Paul Atreides unites with the Fremen to seek revenge against those who destroyed his family.
+                        </div>
+                        <div class="hero-buttons">
+                            <button class="btn btn-play">▶ Play</button>
+                            <button class="btn btn-info">ⓘ More Info</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- movie rows with real posters -->
+                <div class="category-section">
+                    <div class="category-header">
+                        <span class="category-title">Latest Movies 2025</span>
+                        <span>→</span>
+                    </div>
+                    <div class="movie-grid" id="latest-movies"></div>
+                </div>
+
+                <div class="category-section">
+                    <div class="category-header">
+                        <span class="category-title">Trending Now</span>
+                        <span>→</span>
+                    </div>
+                    <div class="movie-grid" id="trending-movies"></div>
+                </div>
+
+                <div class="category-section">
+                    <div class="category-header">
+                        <span class="category-title">Top 10 in India</span>
+                        <span>→</span>
+                    </div>
+                    <div class="movie-grid" id="top10-movies"></div>
+                </div>
+            </div>
+
+            <!-- movies page (all movies) -->
+            <div id="movies-page" class="page">
+                <div class="category-section">
+                    <div class="category-header">
+                        <span class="category-title" style="font-size: 2rem;">All Movies</span>
+                    </div>
+                    <div class="movie-grid" id="all-movies-grid"></div>
+                </div>
+            </div>
+
+            <!-- tv shows page -->
+            <div id="tvshows-page" class="page">
+                <div class="category-section">
+                    <div class="category-header">
+                        <span class="category-title" style="font-size: 2rem;">TV Shows</span>
+                    </div>
+                    <div class="movie-grid" id="tvshows-grid"></div>
+                </div>
+            </div>
+
+            <!-- account page -->
+            <div id="account-page" class="page">
+                <div style="padding: 4rem; text-align: center;">
+                    <h2>Account Settings</h2>
+                    <p style="color: #aaa; margin-top: 1rem;">Membership & billing</p>
+                </div>
+            </div>
+
+            <!-- search results page -->
+            <div id="search-page" class="page">
+                <div class="category-section">
+                    <div class="category-header">
+                        <span class="category-title" id="search-title">Search Results</span>
+                    </div>
+                    <div class="movie-grid" id="search-results-grid"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- footer -->
+        <div class="footer">
+            <div class="footer-grid">
+                <div class="footer-col"><p>Audio and Subtitles</p><p>Media Center</p><p>Privacy</p></div>
+                <div class="footer-col"><p>Audio Description</p><p>Investor Relations</p><p>Legal Notices</p></div>
+                <div class="footer-col"><p>Help Center</p><p>Jobs</p><p>Cookie Preferences</p></div>
+                <div class="footer-col"><p>Gift Cards</p><p>Terms of Use</p><p>Corporate Information</p></div>
+            </div>
+            <div class="copyright">© 2026 MovieFix, Inc. All rights reserved.</div>
+        </div>
+    </div>
+
+    <script>
+        // comprehensive movie database with real images and genres
+        const moviesDB = [
+            { id: 1, title: "Dune: Part Two", year: 2024, genre: "sci-fi", type: "movie", rating: "PG-13", poster: "https://images.unsplash.com/photo-1534809029769-5af6c5b5e4b2?w=400&auto=format", match: 97 },
+            { id: 2, title: "Deadpool 3", year: 2024, genre: "action", type: "movie", rating: "R", poster: "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=400&auto=format", match: 94 },
+            { id: 3, title: "Joker: Folie à Deux", year: 2024, genre: "drama", type: "movie", rating: "R", poster: "https://images.unsplash.com/photo-1586899028174-e7098604235b?w=400&auto=format", match: 89 },
+            { id: 4, title: "Kingdom of the Planet of the Apes", year: 2024, genre: "sci-fi", type: "movie", rating: "PG-13", poster: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=400&auto=format", match: 91 },
+            { id: 5, title: "Furiosa", year: 2024, genre: "action", type: "movie", rating: "R", poster: "https://images.unsplash.com/photo-1547949003-9792a18a2601?w=400&auto=format", match: 96 },
+            { id: 6, title: "The Fall Guy", year: 2024, genre: "action", type: "movie", rating: "PG-13", poster: "https://images.unsplash.com/photo-1533928298208-27ff66555d8d?w=400&auto=format", match: 88 },
+            { id: 7, title: "Challengers", year: 2024, genre: "drama", type: "movie", rating: "R", poster: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=400&auto=format", match: 93 },
+            { id: 8, title: "Civil War", year: 2024, genre: "thriller", type: "movie", rating: "R", poster: "https://images.unsplash.com/photo-1500462918059-b1a0cb512f1d?w=400&auto=format", match: 87 },
+            { id: 9, title: "Abigail", year: 2024, genre: "horror", type: "movie", rating: "R", poster: "https://images.unsplash.com/photo-1542204160-126bf84a8455?w=400&auto=format", match: 82 },
+            { id: 10, title: "The Ministry of Ungentlemanly Warfare", year: 2024, genre: "action", type: "movie", rating: "R", poster: "https://images.unsplash.com/photo-1523207911345-3250150db509?w=400&auto=format", match: 90 },
+            { id: 11, title: "Anyone But You", year: 2023, genre: "romance", type: "movie", rating: "R", poster: "https://images.unsplash.com/photo-1518621736915-f3b1c41bfd00?w=400&auto=format", match: 85 },
+            { id: 12, title: "Poor Things", year: 2023, genre: "comedy", type: "movie", rating: "R", poster: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=400&auto=format", match: 95 },
+            { id: 13, title: "The Bear", year: 2024, genre: "drama", type: "show", rating: "TV-MA", poster: "https://images.unsplash.com/photo-1556911220-bff31c812dba?w=400&auto=format", match: 99 },
+            { id: 14, title: "House of the Dragon S2", year: 2024, genre: "drama", type: "show", rating: "TV-MA", poster: "https://images.unsplash.com/photo-1559599189-fe84dea4eb79?w=400&auto=format", match: 96 },
+            { id: 15, title: "The Boys S4", year: 2024, genre: "action", type: "show", rating: "TV-MA", poster: "https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=400&auto=format", match: 98 },
+            { id: 16, title: "Squid Game S2", year: 2024, genre: "thriller", type: "show", rating: "TV-MA", poster: "https://images.unsplash.com/photo-1616530940355-351fabd9524b?w=400&auto=format", match: 100 },
+            { id: 17, title: "Stranger Things S5", year: 2025, genre: "sci-fi", type: "show", rating: "TV-14", poster: "https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?w=400&auto=format", match: 99 },
+            { id: 18, title: "The Last of Us S2", year: 2025, genre: "drama", type: "show", rating: "TV-MA", poster: "https://images.unsplash.com/photo-1533928298208-27ff66555d8d?w=400&auto=format", match: 98 },
+        ];
+
+        // render movie card HTML
+        function renderMovieCard(movie) {
+            return `
+                <div class="movie-card">
+                    <img class="movie-poster" src="${movie.poster}" alt="${movie.title}" loading="lazy">
+                    <div class="movie-info">
+                        <h4>${movie.title}</h4>
+                        <div class="movie-meta">
+                            <span>${movie.year}</span>
+                            <span class="genre-tag">${movie.genre}</span>
+                            <span>${movie.rating}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // load all sections
+        function loadAllSections() {
+            // latest movies (2024-2025)
+            const latest = moviesDB.filter(m => m.year >= 2024 && m.type === 'movie').slice(0, 6);
+            document.getElementById('latest-movies').innerHTML = latest.map(renderMovieCard).join('');
+
+            // trending (high match)
+            const trending = moviesDB.filter(m => m.match >= 95 && m.type === 'movie').slice(0, 6);
+            document.getElementById('trending-movies').innerHTML = trending.map(renderMovieCard).join('');
+
+            // top 10 india (random selection)
+            const top10 = moviesDB.filter(m => m.type === 'movie').slice(0, 10);
+            document.getElementById('top10-movies').innerHTML = top10.slice(0,6).map(renderMovieCard).join('');
+
+            // all movies grid
+            const allMovies = moviesDB.filter(m => m.type === 'movie');
+            document.getElementById('all-movies-grid').innerHTML = allMovies.map(renderMovieCard).join('');
+
+            // tv shows grid
+            const tvShows = moviesDB.filter(m => m.type === 'show');
+            document.getElementById('tvshows-grid').innerHTML = tvShows.map(renderMovieCard).join('');
+        }
+
+        // navigation
+        function navigateTo(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+            document.getElementById(page + '-page').classList.add('active-page');
+            
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            if (page === 'home') document.querySelector('.nav-link').classList.add('active');
+            
+            // close search if open
+            document.getElementById('searchInput').classList.remove('active');
+        }
+
+        // search
+        function toggleSearch() {
+            const input = document.getElementById('searchInput');
+            input.classList.toggle('active');
+            if (input.classList.contains('active')) {
+                input.focus();
+            } else {
+                if (document.getElementById('search-page').classList.contains('active-page')) {
+                    navigateTo('home');
+                }
+                input.value = '';
+            }
+        }
+
+        function searchMovies(event) {
+            const query = event.target.value.toLowerCase().trim();
+            if (query.length === 0) {
+                if (document.getElementById('search-page').classList.contains('active-page')) {
+                    navigateTo('home');
+                }
+                return;
+            }
+
+            const results = moviesDB.filter(m => 
+                m.title.toLowerCase().includes(query) || 
+                m.genre.toLowerCase().includes(query)
+            );
+
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+            document.getElementById('search-page').classList.add('active-page');
+            document.getElementById('search-title').innerText = `Search: "${query}" (${results.length})`;
+            document.getElementById('search-results-grid').innerHTML = results.map(renderMovieCard).join('') || '<div style="color:#aaa; grid-column:1/-1; text-align:center;">No results found</div>';
+        }
+
+        // genre filter
+        function filterByGenre(genre) {
+            let filtered = moviesDB.filter(m => m.type === 'movie');
+            if (genre !== 'all') {
+                filtered = filtered.filter(m => m.genre === genre);
+            }
+            
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+            document.getElementById('movies-page').classList.add('active-page');
+            document.getElementById('all-movies-grid').innerHTML = filtered.map(renderMovieCard).join('');
+        }
+
+        // initialize
+        window.onload = () => {
+            loadAllSections();
+        };
+
+        // expose functions
+        window.navigateTo = navigateTo;
+        window.toggleSearch = toggleSearch;
+        window.searchMovies = searchMovies;
+        window.filterByGenre = filterByGenre;
+    </script>
+</body>
+</html>
