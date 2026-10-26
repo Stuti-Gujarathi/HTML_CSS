@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kosh — Household budget dashboard</title>
+<meta name="description" content="A household budgeting dashboard built with pure HTML and CSS, including charts and a dark mode toggle.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF1F7; --panel:#FFFFFF; --panel-2:#F6F8FC; --ink:#18203A; --muted:#66708A; --line:#E1E6F0;
+  --indigo:#3D4FD1; --indigo-soft:#E3E6FB; --mint:#23A47A; --mint-soft:#DDF3EA;
+  --amber:#E2952B; --amber-soft:#FCEED9; --rose:#D24D69; --rose-soft:#F9E0E6; --sky:#3E9BD8;
+  --font:"Onest", system-ui, sans-serif;
+}
+body:has(#dark:checked){
+  --bg:#0F1426; --panel:#171E36; --panel-2:#1D2542; --ink:#EEF1FA; --muted:#98A1BC; --line:#2A3354;
+  --indigo:#8391FF; --indigo-soft:#262F5C; --mint:#4CD3A2; --mint-soft:#183A35; --amber:#F2B259; --amber-soft:#3A2F1F; --rose:#F07A92; --rose-soft:#3D2232;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;transition:background .3s,color .3s}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:3px solid var(--indigo);outline-offset:2px;border-radius:8px}
+.app{display:grid;grid-template-columns:248px 1fr;min-height:100vh}
+
+/* SIDEBAR */
+.side{padding:26px 18px;display:flex;flex-direction:column;gap:28px;border-right:1px solid var(--line);position:sticky;top:0;height:100vh}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.3rem;padding:0 10px}
+.brand i{width:32px;height:32px;border-radius:10px;background:var(--indigo);display:grid;place-items:center}
+.brand i::before{content:"";width:14px;height:14px;border:3px solid #fff;border-radius:4px 4px 50% 50%}
+.menu{list-style:none;display:grid;gap:4px}
+.menu a{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;color:var(--muted);font-weight:500}
+.menu a:hover{background:var(--panel);color:var(--ink)}
+.menu a[aria-current]{background:var(--panel);color:var(--ink);font-weight:600;box-shadow:0 1px 2px rgba(20,30,60,.06)}
+.menu svg{width:20px;height:20px;flex:none}
+.menu .count{margin-left:auto;font-size:.75rem;background:var(--rose-soft);color:var(--rose);padding:1px 8px;border-radius:999px;font-weight:600}
+.side-foot{margin-top:auto;background:var(--indigo);color:#fff;border-radius:18px;padding:18px}
+.side-foot p{font-size:.88rem;opacity:.85;margin:6px 0 14px}
+.side-foot a{display:inline-block;background:#fff;color:#3D4FD1;font-weight:600;font-size:.85rem;padding:8px 14px;border-radius:10px}
+
+/* MAIN */
+.main{padding:26px 34px 50px;min-width:0}
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:26px}
+.top h1{font-size:1.75rem;font-weight:700;letter-spacing:-.02em}
+.top p{color:var(--muted)}
+.tools{display:flex;gap:10px;align-items:center}
+.month{display:flex;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.month button{border:0;background:none;color:var(--muted);width:36px;height:40px;cursor:pointer;font-size:1.1rem}
+.month span{padding:0 10px;font-weight:600}
+.toggle{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:0 12px;height:42px;cursor:pointer;color:var(--muted);font-weight:500}
+.toggle input{appearance:none;width:36px;height:20px;border-radius:999px;background:var(--line);position:relative;cursor:pointer;transition:background .2s}
+.toggle input::after{content:"";position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;transition:transform .2s}
+.toggle input:checked{background:var(--indigo)}
+.toggle input:checked::after{transform:translateX(16px)}
+.avatar{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--amber),var(--rose));display:grid;place-items:center;color:#fff;font-weight:700}
+
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px}
+.panel{background:var(--panel);border-radius:20px;padding:22px;border:1px solid var(--line);transition:background .3s,border-color .3s}
+.panel h2{font-size:1rem;font-weight:600}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:18px}
+.panel-head a{font-size:.85rem;color:var(--indigo);font-weight:600}
+.muted{color:var(--muted)}
+
+/* LEFT TO SPEND hero */
+.left{grid-column:span 5;background:var(--ink);color:var(--bg);border:0;display:flex;flex-direction:column;justify-content:space-between;gap:24px;position:relative;overflow:hidden}
+body:has(#dark:checked) .left,body:has(#dark:checked) .side-foot{background:#2F3A92;color:#fff}
+.left .muted{color:inherit;opacity:.7}
+.left .big{font-size:clamp(2.6rem,4vw,3.6rem);font-weight:800;letter-spacing:-.04em;line-height:1}
+.left .big small{font-size:1.1rem;font-weight:500;opacity:.7;letter-spacing:0}
+.pace{height:12px;border-radius:999px;background:rgba(255,255,255,.14);position:relative;overflow:visible}
+.pace span{position:absolute;inset:0 auto 0 0;width:58%;background:var(--mint);border-radius:999px}
+.pace::after{content:"";position:absolute;left:64%;top:-6px;bottom:-6px;width:2px;background:currentColor;opacity:.6}
+.pace-labels{display:flex;justify-content:space-between;font-size:.85rem;margin-top:10px}
+.left .note{font-size:.9rem;opacity:.85;max-width:38ch}
+
+/* STATS */
+.stats{grid-column:span 7;display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.stat .label{color:var(--muted);font-size:.88rem;display:flex;align-items:center;gap:8px}
+.stat .label i{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:var(--soft);color:var(--c)}
+.stat .label i svg{width:16px;height:16px}
+.stat b{display:block;font-size:1.65rem;font-weight:700;letter-spacing:-.02em;margin:14px 0 4px}
+.delta{font-size:.82rem;font-weight:600;color:var(--c)}
+.spark{display:flex;align-items:end;gap:4px;height:36px;margin-top:14px}
+.spark span{flex:1;background:var(--soft);border-radius:4px;height:var(--h)}
+.spark span:last-child{background:var(--c)}
+
+/* CASHFLOW chart */
+.flow{grid-column:span 8;display:flex;flex-direction:column}
+.chart{display:grid;grid-template-columns:40px 1fr;gap:10px;flex:1;min-height:250px}
+.y{display:flex;flex-direction:column;justify-content:space-between;font-size:.75rem;color:var(--muted);text-align:right;padding-bottom:26px}
+.plot{position:relative;display:grid;grid-template-columns:repeat(6,1fr);gap:14px;align-items:end;padding-bottom:26px;
+  background:repeating-linear-gradient(to top,var(--line) 0 1px,transparent 1px calc((100% - 26px)/4)) 0 0/100% calc(100% - 26px) no-repeat}
+.col{display:flex;gap:5px;align-items:end;justify-content:center;height:100%;position:relative}
+.col span{width:min(22px,40%);border-radius:7px 7px 3px 3px;height:var(--h);transform-origin:bottom;animation:grow .8s cubic-bezier(.2,.8,.2,1) both}
+.col .in{background:var(--indigo)}
+.col .out{background:var(--indigo-soft)}
+.col.now .out{background:var(--amber)}
+.col em{position:absolute;bottom:-26px;font-style:normal;font-size:.8rem;color:var(--muted)}
+.col.now em{color:var(--ink);font-weight:600}
+@keyframes grow{from{transform:scaleY(0)}}
+.key{display:flex;gap:16px;font-size:.82rem;color:var(--muted)}
+.key span{display:flex;align-items:center;gap:6px}
+.key span::before{content:"";width:10px;height:10px;border-radius:3px;background:var(--k)}
+
+/* DONUT */
+.cats{grid-column:span 4}
+.donut{width:170px;aspect-ratio:1;border-radius:50%;margin:0 auto 20px;position:relative;
+  background:conic-gradient(var(--indigo) 0 34%, var(--mint) 34% 56%, var(--amber) 56% 72%, var(--rose) 72% 84%, var(--sky) 84% 100%)}
+.donut::after{content:"";position:absolute;inset:26px;border-radius:50%;background:var(--panel)}
+.donut div{position:absolute;inset:0;display:grid;place-content:center;text-align:center;z-index:1}
+.donut b{font-size:1.4rem;letter-spacing:-.02em}
+.donut small{color:var(--muted);font-size:.8rem}
+.cat-list{list-style:none;display:grid;gap:10px}
+.cat-list li{display:grid;grid-template-columns:12px 1fr auto;gap:10px;align-items:center;font-size:.92rem}
+.cat-list li::before{content:"";width:12px;height:12px;border-radius:4px;background:var(--c)}
+.cat-list b{font-weight:600}
+
+/* ENVELOPES */
+.env{grid-column:span 7}
+.envs{display:grid;gap:16px}
+.e-row{display:grid;grid-template-columns:42px 1fr auto;gap:14px;align-items:center}
+.e-icon{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:var(--soft);font-size:1.2rem}
+.e-mid strong{font-weight:600;display:block;margin-bottom:6px}
+.meter{height:8px;border-radius:999px;background:var(--panel-2);overflow:hidden;box-shadow:inset 0 0 0 1px var(--line)}
+.meter span{display:block;height:100%;width:var(--w);background:var(--c);border-radius:999px}
+.e-amt{text-align:right;font-size:.9rem}
+.e-amt b{display:block;font-weight:600}
+.over{color:var(--rose);font-weight:600}
+
+/* BILLS */
+.bills{grid-column:span 5}
+.timeline{list-style:none;position:relative;display:grid;gap:4px}
+.timeline li{display:grid;grid-template-columns:52px 1fr auto;gap:12px;align-items:center;padding:10px 0;position:relative}
+.date{background:var(--panel-2);border-radius:12px;text-align:center;padding:6px 0;line-height:1.1;border:1px solid var(--line)}
+.date b{display:block;font-size:1.15rem}
+.date small{font-size:.7rem;color:var(--muted)}
+.timeline .soon .date{background:var(--amber-soft);border-color:transparent}
+.timeline strong{font-weight:600;display:block}
+.timeline span.muted{font-size:.85rem}
+.tag{font-size:.75rem;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--mint-soft);color:var(--mint);white-space:nowrap}
+.tag.due{background:var(--amber-soft);color:var(--amber)}
+
+/* TABLE */
+.tx{grid-column:span 12}
+table{width:100%;border-collapse:collapse;font-size:.93rem}
+th{text-align:left;font-weight:500;color:var(--muted);font-size:.82rem;padding:0 12px 12px}
+td{padding:14px 12px;border-top:1px solid var(--line)}
+td:last-child,th:last-child{text-align:right}
+tbody tr:hover td{background:var(--panel-2)}
+.who{display:flex;align-items:center;gap:12px;font-weight:600}
+.who i{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;font-style:normal;background:var(--soft)}
+.pill{display:inline-block;font-size:.78rem;padding:3px 10px;border-radius:999px;background:var(--soft);color:var(--c);font-weight:600}
+.amt-in{color:var(--mint);font-weight:600}
+.amt-out{font-weight:600}
+.pill,.amt-in,.amt-out{white-space:nowrap}
+.table-wrap{overflow-x:auto}
+
+.c-indigo{--c:var(--indigo);--soft:var(--indigo-soft)}
+.c-mint{--c:var(--mint);--soft:var(--mint-soft)}
+.c-amber{--c:var(--amber);--soft:var(--amber-soft)}
+.c-rose{--c:var(--rose);--soft:var(--rose-soft)}
+
+@media (max-width:1180px){
+  .left,.stats,.flow,.cats,.env,.bills{grid-column:span 12}
+}
+@media (max-width:860px){
+  .app{grid-template-columns:1fr}
+  .side{position:static;height:auto;flex-direction:row;align-items:center;justify-content:space-between;padding:16px 20px;border-right:0;border-bottom:1px solid var(--line)}
+  .menu,.side-foot{display:none}
+  .main{padding:22px 18px 40px}
+  .stats{grid-template-columns:1fr}
+}
+@media (max-width:560px){
+  .tools .month{display:none}
+  .hide-sm{display:none}
+  .plot{gap:6px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><i aria-hidden="true"></i>Kosh</div>
+    <nav aria-label="Main">
+      <ul class="menu">
+        <li><a href="#" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="16" width="7" height="5" rx="2"/></svg>Overview</a></li>
+        <li><a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h10"/></svg>Transactions</a></li>
+        <li><a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8l9-5 9 5v10a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M3 8l9 6 9-6"/></svg>Envelopes</a></li>
+        <li><a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Bills<span class="count">2 due</span></a></li>
+        <li><a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg>Goals</a></li>
+        <li><a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6M17 11a3 3 0 100-6M22 21c0-3-2-5-5-5.5"/></svg>Household</a></li>
+      </ul>
+    </nav>
+    <div class="side-foot">
+      <strong>Diwali fund</strong>
+      <p>₹38,000 of ₹50,000 saved. One more transfer gets you there.</p>
+      <a href="#">Move ₹12,000</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="top">
+      <div>
+        <h1>Good evening, Ananya</h1>
+        <p>Here's where October stands with 6 days to go.</p>
+      </div>
+      <div class="tools">
+        <div class="month" role="group" aria-label="Month">
+          <button aria-label="Previous month">‹</button><span>Oct 2026</span><button aria-label="Next month">›</button>
+        </div>
+        <label class="toggle"><input type="checkbox" id="dark" aria-label="Dark mode"><span class="hide-sm">Dark</span></label>
+        <div class="avatar" aria-label="Ananya R.">AR</div>
+      </div>
+    </header>
+
+    <div class="grid">
+      <section class="panel left">
+        <div>
+          <span class="muted">Left to spend this month</span>
+          <div class="big">₹18,420 <small>of ₹62,000</small></div>
+        </div>
+        <div>
+          <div class="pace"><span></span></div>
+          <div class="pace-labels"><span>58% spent</span><span class="muted">Day 25 of 31</span></div>
+        </div>
+        <p class="note">You're ahead of pace. At this rate you'll finish October with about ₹6,500 to roll into savings.</p>
+      </section>
+
+      <div class="stats">
+        <div class="panel stat c-mint">
+          <span class="label"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg></i>Income</span>
+          <b>₹1,24,500</b><span class="delta">+4.2% vs Sept</span>
+          <div class="spark"><span style="--h:60%"></span><span style="--h:62%"></span><span style="--h:58%"></span><span style="--h:70%"></span><span style="--h:66%"></span><span style="--h:78%"></span></div>
+        </div>
+        <div class="panel stat c-amber">
+          <span class="label"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12l7 7 7-7"/></svg></i>Spent</span>
+          <b>₹43,580</b><span class="delta">−8.1% vs Sept</span>
+          <div class="spark"><span style="--h:82%"></span><span style="--h:70%"></span><span style="--h:90%"></span><span style="--h:76%"></span><span style="--h:80%"></span><span style="--h:62%"></span></div>
+        </div>
+        <div class="panel stat c-indigo">
+          <span class="label"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/></svg></i>Saved</span>
+          <b>₹31,000</b><span class="delta">25% of income</span>
+          <div class="spark"><span style="--h:40%"></span><span style="--h:46%"></span><span style="--h:44%"></span><span style="--h:58%"></span><span style="--h:64%"></span><span style="--h:72%"></span></div>
+        </div>
+      </div>
+
+      <section class="panel flow">
+        <div class="panel-head">
+          <h2>Cash flow, last 6 months</h2>
+          <div class="key"><span style="--k:var(--indigo)">Income</span><span style="--k:var(--indigo-soft)">Spending</span></div>
+        </div>
+        <div class="chart">
+          <div class="y" aria-hidden="true"><span>₹1.6L</span><span>₹1.2L</span><span>₹80k</span><span>₹40k</span><span>0</span></div>
+          <div class="plot">
+            <div class="col"><span class="in" style="--h:72%"></span><span class="out" style="--h:44%"></span><em>May</em></div>
+            <div class="col"><span class="in" style="--h:72%"></span><span class="out" style="--h:52%"></span><em>Jun</em></div>
+            <div class="col"><span class="in" style="--h:74%"></span><span class="out" style="--h:38%"></span><em>Jul</em></div>
+            <div class="col"><span class="in" style="--h:74%"></span><span class="out" style="--h:61%"></span><em>Aug</em></div>
+            <div class="col"><span class="in" style="--h:75%"></span><span class="out" style="--h:30%"></span><em>Sep</em></div>
+            <div class="col now"><span class="in" style="--h:78%"></span><span class="out" style="--h:27%"></span><em>Oct</em></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel cats">
+        <div class="panel-head"><h2>Where it went</h2><a href="#">Details</a></div>
+        <div class="donut"><div><b>₹43.6k</b><small>spent</small></div></div>
+        <ul class="cat-list">
+          <li style="--c:var(--indigo)"><span>Rent &amp; home</span><b>₹14,800</b></li>
+          <li style="--c:var(--mint)"><span>Groceries</span><b>₹9,600</b></li>
+          <li style="--c:var(--amber)"><span>Eating out</span><b>₹7,000</b></li>
+          <li style="--c:var(--rose)"><span>Transport</span><b>₹5,200</b></li>
+          <li style="--c:var(--sky)"><span>Everything else</span><b>₹6,980</b></li>
+        </ul>
+      </section>
+
+      <section class="panel env">
+        <div class="panel-head"><h2>Envelopes</h2><a href="#">Edit limits</a></div>
+        <div class="envs">
+          <div class="e-row c-mint"><div class="e-icon" aria-hidden="true">🥦</div><div class="e-mid"><strong>Groceries</strong><div class="meter"><span style="--w:80%"></span></div></div><div class="e-amt"><b>₹2,400 left</b><span class="muted">of ₹12,000</span></div></div>
+          <div class="e-row c-rose"><div class="e-icon" aria-hidden="true">🍜</div><div class="e-mid"><strong>Eating out</strong><div class="meter"><span style="--w:100%"></span></div></div><div class="e-amt"><b class="over">₹1,000 over</b><span class="muted">of ₹6,000</span></div></div>
+          <div class="e-row c-amber"><div class="e-icon" aria-hidden="true">🛺</div><div class="e-mid"><strong>Transport</strong><div class="meter"><span style="--w:65%"></span></div></div><div class="e-amt"><b>₹2,800 left</b><span class="muted">of ₹8,000</span></div></div>
+          <div class="e-row c-indigo"><div class="e-icon" aria-hidden="true">🎁</div><div class="e-mid"><strong>Gifts</strong><div class="meter"><span style="--w:30%"></span></div></div><div class="e-amt"><b>₹3,500 left</b><span class="muted">of ₹5,000</span></div></div>
+        </div>
+      </section>
+
+      <section class="panel bills">
+        <div class="panel-head"><h2>Upcoming bills</h2><a href="#">See all</a></div>
+        <ol class="timeline">
+          <li class="soon"><div class="date"><b>28</b><small>Oct</small></div><div><strong>Electricity</strong><span class="muted">MSEDCL · autopay off</span></div><span class="tag due">₹2,140</span></li>
+          <li class="soon"><div class="date"><b>30</b><small>Oct</small></div><div><strong>Broadband</strong><span class="muted">ACT Fibernet</span></div><span class="tag due">₹1,180</span></li>
+          <li><div class="date"><b>01</b><small>Nov</small></div><div><strong>Rent</strong><span class="muted">Scheduled transfer</span></div><span class="tag">₹14,800</span></li>
+          <li><div class="date"><b>05</b><small>Nov</small></div><div><strong>SIP — Index fund</strong><span class="muted">Autopay on</span></div><span class="tag">₹10,000</span></li>
+        </ol>
+      </section>
+
+      <section class="panel tx">
+        <div class="panel-head"><h2>Recent transactions</h2><a href="#">View all</a></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Payee</th><th>Envelope</th><th class="hide-sm">Date</th><th class="hide-sm">Paid by</th><th>Amount</th></tr></thead>
+            <tbody>
+              <tr><td><div class="who c-mint"><i>🥦</i>Nature's Basket</div></td><td><span class="pill c-mint">Groceries</span></td><td class="hide-sm muted">Today, 6:40 pm</td><td class="hide-sm">Ananya</td><td class="amt-out">−₹1,862</td></tr>
+              <tr><td><div class="who c-indigo"><i>💼</i>Salary · Lumen Labs</div></td><td><span class="pill c-indigo">Income</span></td><td class="hide-sm muted">25 Oct</td><td class="hide-sm">Rohan</td><td class="amt-in">+₹68,000</td></tr>
+              <tr><td><div class="who c-rose"><i>🍜</i>Swiggy</div></td><td><span class="pill c-rose">Eating out</span></td><td class="hide-sm muted">24 Oct</td><td class="hide-sm">Rohan</td><td class="amt-out">−₹740</td></tr>
+              <tr><td><div class="who c-amber"><i>🛺</i>Uber</div></td><td><span class="pill c-amber">Transport</span></td><td class="hide-sm muted">24 Oct</td><td class="hide-sm">Ananya</td><td class="amt-out">−₹312</td></tr>
+              <tr><td><div class="who c-indigo"><i>🎁</i>Tanishq</div></td><td><span class="pill c-indigo">Gifts</span></td><td class="hide-sm muted">22 Oct</td><td class="hide-sm">Ananya</td><td class="amt-out">−₹1,500</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</body>
+</html>
