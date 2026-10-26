@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Moon Jar No. 7 — Kiln Studio</title>
+<meta name="description" content="Product page for a hand-thrown stoneware moon jar, with a CSS-only glaze picker.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F5F6F3;
+  --stone:#E4E2DC;
+  --ink:#23262A;
+  --muted:#6C6F72;
+  --celadon:#9DBBA7;
+  --cobalt:#2B4C8C;
+  --tenmoku:#4A2E22;
+  --ash:#CFCBC0;
+  --glaze:var(--celadon);
+  --serif:"Young Serif", Georgia, serif;
+  --sans:"Figtree", system-ui, sans-serif;
+}
+body:has(#g-cobalt:checked){--glaze:var(--cobalt)}
+body:has(#g-tenmoku:checked){--glaze:var(--tenmoku)}
+body:has(#g-ash:checked){--glaze:var(--ash)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--paper);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.wrap{width:min(1240px,100% - 40px);margin-inline:auto}
+
+.bar{background:var(--ink);color:var(--paper);text-align:center;font-size:.85rem;padding:8px 20px}
+header.site{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:22px 0;border-bottom:1px solid var(--stone)}
+header.site nav{display:flex;gap:26px;font-size:.95rem}
+header.site nav a{text-decoration:none}
+header.site nav a:hover{text-decoration:underline;text-underline-offset:4px}
+.logo{font-family:var(--serif);font-size:1.7rem;text-decoration:none;letter-spacing:-.01em}
+.cart{justify-self:end;display:flex;gap:20px;align-items:center;font-size:.95rem}
+.cart a{text-decoration:none}
+.cart b{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--ink);color:var(--paper);font-size:.75rem;margin-left:4px}
+
+.crumbs{font-size:.85rem;color:var(--muted);padding:22px 0}
+.crumbs a{text-decoration:none}
+
+/* PRODUCT */
+.product{display:grid;grid-template-columns:1.25fr 1fr;gap:64px;align-items:start;padding-bottom:100px}
+.stage{position:sticky;top:20px;display:grid;grid-template-columns:84px 1fr;gap:16px}
+.thumbs{display:grid;gap:12px;align-content:start}
+.thumbs button{aspect-ratio:1;border:1px solid var(--stone);background:#ECEBE6;border-radius:6px;cursor:pointer;display:grid;place-items:center}
+.thumbs button[aria-pressed=true]{border-color:var(--ink)}
+.thumbs svg{width:60%}
+.main-shot{aspect-ratio:4/5;border-radius:8px;position:relative;overflow:hidden;
+  background:linear-gradient(#ECEBE6 0 78%,#DCD8CE 78% 100%)}
+.main-shot .shelf{position:absolute;left:0;right:0;bottom:22%;height:1px;background:#CBC6BA}
+.vase{position:absolute;left:50%;bottom:15%;width:54%;translate:-50% 0;filter:drop-shadow(0 30px 30px rgba(40,30,20,.25))}
+.vase .body{fill:var(--glaze);transition:fill .5s ease}
+.badge{position:absolute;top:20px;left:20px;background:var(--paper);font-size:.82rem;padding:6px 12px;border-radius:999px}
+
+.info h1{font-family:var(--serif);font-weight:400;font-size:clamp(2.4rem,4vw,3.4rem);line-height:1.05;letter-spacing:-.015em}
+.maker{color:var(--muted);margin:10px 0 20px}
+.price{font-size:1.5rem;display:flex;align-items:baseline;gap:14px}
+.price small{font-size:.9rem;color:var(--muted)}
+.desc{margin:24px 0 30px;max-width:52ch;font-size:1.05rem}
+fieldset{border:0;margin-bottom:28px}
+legend{font-weight:600;margin-bottom:12px;display:flex;gap:8px}
+legend output{font-weight:400;color:var(--muted)}
+.glazes{display:flex;gap:12px;flex-wrap:wrap}
+.glazes input{position:absolute;opacity:0;pointer-events:none}
+.glazes label{display:flex;align-items:center;gap:10px;padding:8px 14px 8px 8px;border:1px solid var(--stone);border-radius:999px;cursor:pointer;background:#fff;transition:border-color .2s}
+.glazes label i{width:28px;height:28px;border-radius:50%;background:var(--sw);box-shadow:inset -4px -5px 8px rgba(0,0,0,.18), inset 3px 3px 6px rgba(255,255,255,.35)}
+.glazes input:checked + label{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.glazes input:focus-visible + label{outline:2px solid var(--ink);outline-offset:3px}
+.glaze-name{display:none}
+body:has(#g-celadon:checked) .n-celadon,
+body:has(#g-cobalt:checked) .n-cobalt,
+body:has(#g-tenmoku:checked) .n-tenmoku,
+body:has(#g-ash:checked) .n-ash{display:inline}
+
+.buy{display:grid;grid-template-columns:120px 1fr;gap:12px;margin-bottom:16px}
+.qty{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--stone);border-radius:6px;background:#fff;padding:0 6px}
+.qty button{border:0;background:none;width:32px;height:32px;font-size:1.2rem;cursor:pointer;color:var(--ink)}
+.add{border:0;background:var(--ink);color:var(--paper);font:600 1rem var(--sans);border-radius:6px;padding:17px;cursor:pointer;transition:background .2s}
+.add:hover{background:#000}
+.ship{font-size:.9rem;color:var(--muted);display:flex;gap:8px;align-items:center}
+.ship::before{content:"";width:8px;height:8px;border-radius:50%;background:#4E9A6A}
+
+.specs{margin-top:36px;border-top:1px solid var(--stone)}
+details{border-bottom:1px solid var(--stone)}
+summary{list-style:none;cursor:pointer;padding:18px 0;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"";width:12px;height:12px;border-right:1.5px solid;border-bottom:1.5px solid;transform:rotate(45deg) translateY(-4px);transition:transform .25s}
+details[open] summary::after{transform:rotate(225deg) translateY(-2px)}
+details > div{padding:0 0 20px;color:#44474B;max-width:52ch}
+dl{display:grid;grid-template-columns:auto 1fr;gap:6px 24px}
+dt{color:var(--muted)}
+
+/* PROCESS */
+.process{background:var(--ink);color:var(--paper);padding:110px 0}
+.process h2{font-family:var(--serif);font-weight:400;font-size:clamp(2rem,4vw,3rem);line-height:1.1;max-width:20ch;margin-bottom:60px}
+.timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:28px;list-style:none;counter-reset:d}
+.timeline li{border-top:1px solid rgba(245,246,243,.25);padding-top:22px;position:relative}
+.timeline li::before{content:"";position:absolute;top:-5px;left:0;width:9px;height:9px;border-radius:50%;background:var(--celadon)}
+.timeline .day{font-family:var(--serif);font-size:2.2rem;line-height:1;display:block;margin-bottom:12px;color:var(--celadon)}
+.timeline h3{font-size:1.1rem;font-weight:600;margin-bottom:8px}
+.timeline p{color:#B9BCBD;font-size:.95rem}
+
+/* REVIEWS */
+.reviews{padding:110px 0;display:grid;grid-template-columns:1fr 2fr;gap:60px}
+.reviews h2{font-family:var(--serif);font-weight:400;font-size:2.2rem;line-height:1.1}
+.score{margin-top:20px;font-size:4rem;font-family:var(--serif);line-height:1}
+.stars{--p:96%;width:120px;height:20px;margin:8px 0;background:linear-gradient(90deg,var(--ink) var(--p),var(--stone) var(--p));
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2l3 6.9 7.5.6-5.7 4.9 1.8 7.4L12 17.8 5.4 21.8l1.8-7.4L1.5 9.5 9 8.9z'/%3E%3C/svg%3E") 0 0/24px 20px repeat-x;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2l3 6.9 7.5.6-5.7 4.9 1.8 7.4L12 17.8 5.4 21.8l1.8-7.4L1.5 9.5 9 8.9z'/%3E%3C/svg%3E") 0 0/24px 20px repeat-x}
+.rev-list{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+blockquote{background:#fff;border-radius:8px;padding:26px;border:1px solid var(--stone)}
+blockquote p{font-family:var(--serif);font-size:1.15rem;line-height:1.45;margin:12px 0 18px}
+blockquote footer{font-size:.88rem;color:var(--muted)}
+blockquote .stars{width:96px;height:16px;-webkit-mask-size:19.2px 16px;mask-size:19.2px 16px}
+
+/* RELATED */
+.related{padding-bottom:110px}
+.related h2{font-family:var(--serif);font-weight:400;font-size:2.2rem;margin-bottom:30px}
+.shelf-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.item{text-decoration:none}
+.item .ph{aspect-ratio:1;background:#ECEBE6;border-radius:8px;display:grid;place-items:center;margin-bottom:14px;transition:background .3s}
+.item:hover .ph{background:#E4E2DC}
+.item svg{width:52%}
+.item h3{font-weight:500;font-size:1rem}
+.item span{color:var(--muted);font-size:.92rem}
+
+footer.site{border-top:1px solid var(--stone);padding:40px 0;font-size:.9rem;color:var(--muted)}
+footer.site .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+
+@media (max-width:960px){
+  .product{grid-template-columns:1fr;gap:36px}
+  .stage{position:static}
+  .timeline{grid-template-columns:1fr 1fr}
+  .reviews{grid-template-columns:1fr;gap:30px}
+  .shelf-grid{grid-template-columns:1fr 1fr}
+  header.site nav{display:none}
+  header.site{grid-template-columns:1fr auto}
+}
+@media (max-width:600px){
+  .stage{grid-template-columns:1fr}
+  .thumbs{grid-template-columns:repeat(4,1fr);order:2}
+  .rev-list{grid-template-columns:1fr}
+  .timeline{grid-template-columns:1fr}
+  .cart .hide-sm{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="bar">Every piece ships in a recycled-paper cradle. Free delivery across India over ₹4,000.</div>
+<header class="wrap site">
+  <nav aria-label="Shop">
+    <a href="#">Vessels</a><a href="#">Tableware</a><a href="#">Studio</a>
+  </nav>
+  <a href="#" class="logo">Kiln Studio</a>
+  <div class="cart"><a href="#" class="hide-sm">Search</a><a href="#">Bag<b>1</b></a></div>
+</header>
+
+<main>
+  <div class="wrap crumbs"><a href="#">Vessels</a> / <a href="#">Jars</a> / Moon Jar No. 7</div>
+
+  <section class="wrap product">
+    <div class="stage">
+      <div class="thumbs" aria-label="Product views">
+        <button aria-pressed="true" aria-label="Front view"><svg viewBox="0 0 100 110"><path d="M38 6h24v6c18 6 32 22 32 44 0 26-20 48-44 48S6 82 6 56c0-22 14-38 32-44z" fill="var(--glaze)"/></svg></button>
+        <button aria-pressed="false" aria-label="Top view"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="var(--glaze)"/><circle cx="50" cy="50" r="13" fill="#2b2b2b" opacity=".5"/></svg></button>
+        <button aria-pressed="false" aria-label="Foot ring detail"><svg viewBox="0 0 100 60"><ellipse cx="50" cy="30" rx="44" ry="20" fill="#C8B9A0"/><ellipse cx="50" cy="30" rx="30" ry="12" fill="#B3A387"/></svg></button>
+        <button aria-pressed="false" aria-label="In a room"><svg viewBox="0 0 100 100"><rect x="10" y="62" width="80" height="6" fill="#8b7d6b"/><path d="M40 20h14v4c10 4 17 12 17 22 0 10-9 16-24 16s-24-6-24-16c0-10 7-18 17-22z" fill="var(--glaze)"/></svg></button>
+      </div>
+      <div class="main-shot">
+        <span class="badge">Made to order · ships in 3 weeks</span>
+        <div class="shelf"></div>
+        <svg class="vase" viewBox="0 0 300 330" aria-label="Moon jar illustration" role="img">
+          <defs>
+            <radialGradient id="shade" cx="35%" cy="35%" r="75%">
+              <stop offset="0" stop-color="#fff" stop-opacity=".45"/>
+              <stop offset=".45" stop-color="#fff" stop-opacity="0"/>
+              <stop offset="1" stop-color="#000" stop-opacity=".38"/>
+            </radialGradient>
+            <linearGradient id="drip" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#000" stop-opacity="0"/>
+              <stop offset="1" stop-color="#000" stop-opacity=".25"/>
+            </linearGradient>
+          </defs>
+          <path class="body" d="M124 8h52v22C240 40 288 100 288 172C288 252 226 312 150 312C74 312 12 252 12 172C12 100 60 40 124 30z"/>
+          <path d="M124 8h52v22C240 40 288 100 288 172C288 252 226 312 150 312C74 312 12 252 12 172C12 100 60 40 124 30z" fill="url(#shade)"/>
+          <path d="M30 236c26 44 70 66 120 66s94-22 120-66c-16 46-62 76-120 76S46 282 30 236z" fill="url(#drip)"/>
+          <ellipse cx="150" cy="10" rx="26" ry="5" fill="#000" opacity=".35"/>
+          <path d="M112 310h76l-4 12h-68z" fill="#C8B9A0"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="info">
+      <h1>Moon Jar No. 7</h1>
+      <p class="maker">Thrown by Meera Kale in Pondicherry</p>
+      <div class="price">₹14,500 <small>Inclusive of GST</small></div>
+      <p class="desc">A full, slightly lopsided jar thrown in two halves and joined at the belly, the way Joseon potters did it. The seam stays visible. It holds dried stems beautifully, or nothing at all.</p>
+
+      <form action="#">
+        <fieldset>
+          <legend>Glaze <output><span class="glaze-name n-celadon">Celadon</span><span class="glaze-name n-cobalt">Cobalt</span><span class="glaze-name n-tenmoku">Tenmoku</span><span class="glaze-name n-ash">Wood ash</span></output></legend>
+          <div class="glazes">
+            <input type="radio" name="glaze" id="g-celadon" checked><label for="g-celadon"><i style="--sw:var(--celadon)"></i>Celadon</label>
+            <input type="radio" name="glaze" id="g-cobalt"><label for="g-cobalt"><i style="--sw:var(--cobalt)"></i>Cobalt</label>
+            <input type="radio" name="glaze" id="g-tenmoku"><label for="g-tenmoku"><i style="--sw:var(--tenmoku)"></i>Tenmoku</label>
+            <input type="radio" name="glaze" id="g-ash"><label for="g-ash"><i style="--sw:var(--ash)"></i>Wood ash</label>
+          </div>
+        </fieldset>
+        <div class="buy">
+          <div class="qty"><button type="button" aria-label="Decrease quantity">−</button><span>1</span><button type="button" aria-label="Increase quantity">+</button></div>
+          <button class="add" type="submit">Add to bag</button>
+        </div>
+      </form>
+      <p class="ship">Ships by 16 November to most pin codes</p>
+
+      <div class="specs">
+        <details open>
+          <summary>Size and material</summary>
+          <div>
+            <dl>
+              <dt>Height</dt><dd>32 cm</dd>
+              <dt>Widest point</dt><dd>30 cm</dd>
+              <dt>Weight</dt><dd>3.4 kg</dd>
+              <dt>Clay</dt><dd>Grey stoneware, fired to 1280°C</dd>
+            </dl>
+          </div>
+        </details>
+        <details>
+          <summary>Why no two are alike</summary>
+          <div>Glaze pools and breaks differently on every curve. Expect variation in tone, small iron spots and a soft crawl near the seam. Photos show a recent firing, not your exact jar.</div>
+        </details>
+        <details>
+          <summary>Care</summary>
+          <div>Watertight and safe for fresh flowers. Wipe with a damp cloth. Avoid the dishwasher; the unglazed foot ring can stain.</div>
+        </details>
+        <details>
+          <summary>Returns</summary>
+          <div>Return within 14 days in its original cradle. If it arrives damaged, send us a photo and we'll throw you another.</div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="process">
+    <div class="wrap">
+      <h2>Three weeks from wet clay to your door</h2>
+      <ol class="timeline">
+        <li><span class="day">Day 1</span><h3>Thrown in halves</h3><p>Two bowls are thrown on the wheel and left to firm up overnight.</p></li>
+        <li><span class="day">Day 2</span><h3>Joined and trimmed</h3><p>The halves are scored, joined at the rim and paddled into one round form.</p></li>
+        <li><span class="day">Day 10</span><h3>Bisque fired</h3><p>Once bone dry, the jar is fired to 900°C so it can take glaze.</p></li>
+        <li><span class="day">Day 18</span><h3>Glaze fired</h3><p>Dipped in your chosen glaze and fired to 1280°C in a gas kiln for 11 hours.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="wrap reviews">
+    <div>
+      <h2>What owners say</h2>
+      <div class="score">4.8</div>
+      <div class="stars" role="img" aria-label="4.8 out of 5 stars"></div>
+      <p class="maker">From 126 reviews</p>
+    </div>
+    <div class="rev-list">
+      <blockquote>
+        <div class="stars" style="--p:100%" role="img" aria-label="5 stars"></div>
+        <p>The seam catches the morning light and it looks different every day. Heavier than I expected, in a good way.</p>
+        <footer>Tanvi, Bengaluru · Celadon</footer>
+      </blockquote>
+      <blockquote>
+        <div class="stars" style="--p:100%" role="img" aria-label="5 stars"></div>
+        <p>Packed so carefully I almost didn't want to open it. The tenmoku has a rust bloom near the shoulder that I love.</p>
+        <footer>Arjun, Delhi · Tenmoku</footer>
+      </blockquote>
+      <blockquote>
+        <div class="stars" style="--p:80%" role="img" aria-label="4 stars"></div>
+        <p>Beautiful jar. It took four weeks, not three, but Meera emailed to explain the kiln delay.</p>
+        <footer>Farah, Mumbai · Cobalt</footer>
+      </blockquote>
+      <blockquote>
+        <div class="stars" style="--p:100%" role="img" aria-label="5 stars"></div>
+        <p>Second piece from Kiln. The wood ash glaze is subtle and sits perfectly on a limewash wall.</p>
+        <footer>Nikhil, Goa · Wood ash</footer>
+      </blockquote>
+    </div>
+  </section>
+
+  <section class="wrap related">
+    <h2>From the same firing</h2>
+    <div class="shelf-grid">
+      <a href="#" class="item"><div class="ph"><svg viewBox="0 0 100 120"><path d="M35 4h30v10c-4 10 22 20 22 50 0 30-16 52-37 52S13 94 13 64c0-30 26-40 22-50z" fill="#9DBBA7"/></svg></div><h3>Bud vase, tall</h3><span>₹3,200</span></a>
+      <a href="#" class="item"><div class="ph"><svg viewBox="0 0 120 70"><path d="M6 10h108c0 30-24 54-54 54S6 40 6 10z" fill="#2B4C8C"/></svg></div><h3>Serving bowl</h3><span>₹4,800</span></a>
+      <a href="#" class="item"><div class="ph"><svg viewBox="0 0 100 100"><path d="M20 20h60v60c0 8-6 14-14 14H34c-8 0-14-6-14-14z" fill="#4A2E22"/><path d="M80 34c14 0 14 28 0 28" fill="none" stroke="#4A2E22" stroke-width="7"/></svg></div><h3>Tenmoku mug</h3><span>₹1,450</span></a>
+      <a href="#" class="item"><div class="ph"><svg viewBox="0 0 120 120"><ellipse cx="60" cy="60" rx="54" ry="54" fill="#CFCBC0"/><ellipse cx="60" cy="60" rx="38" ry="38" fill="#C2BDB0"/></svg></div><h3>Dinner plate, set of 4</h3><span>₹6,200</span></a>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="wrap"><span>© 2026 Kiln Studio, Pondicherry</span><span>Studio visits on Saturdays, by appointment</span></div>
+</footer>
+</body>
+</html>
